@@ -28,8 +28,8 @@ def reply():
         pass
 
     if(bool(x) == False or bool(y) == False):
-        patient.insert_one({"NUMBER": num, "status": "first"})
-        doctor.insert_one({"NUMBER": num, "status": "first"})
+        patient.insert_one({"NUMBER": num, "status": "new"})
+        doctor.insert_one({"NUMBER": num, "status": "new"})
         msg = MessagingResponse()
         msg.message('''Namaste 🙏
         Welcome to HealU
@@ -45,42 +45,11 @@ def reply():
         by space that is 'Ujjwal Sharma 1'.''')
         return(str(msg))
     else:
-        if(status == "first"):
-            if(msg_text[-1] == '1'):
-                myquery = {"status": "first"}
-                newvalues = {"$set": {"status": "patient"}}
-                patient.update_one(myquery, newvalues)
-                doctor.delete_one({"NUMBER": num})
-                msg = MessagingResponse()
-                msg.message('''
-                Please select the symptoms from our list-:
-
-                1.) food allergies, insect sting allergies.
-                2.) heart failure, heart attack, high blood pressure, or irregular heartbeat.
-                3.) for asking or detailing moles, scars, acne, or skin allergies about specific medicines.
-                4.) moles, scars, acne, or skin allergies.
-                5.) diabetes, thyroid problems, calcium and bone disorders.
-                7.) Emergency Case(medicine specialist).
-                8.) Fever, cold & cuff, Headache, Clogged Nose, and Body Pain.
-
-                💡 Tip: Select the option number from the list.(Ex.1)''')
-                return(str(msg))
-
-            elif(msg_text[-1] == '2'):
-                patient.delete_one({"NUMBER": num})
-                myquery = {"status": "first"}
-                newvalues = {
-                    "$set": {"name": msg_text[:-2], "status": "doctor"}}
-                doctor.update_many(myquery, newvalues)
-                msg = MessagingResponse()
-                msg.message('Please tell us your Specializations.')
-                return(str(msg))
-
         # Patient
-        elif(status == 'patient'):
+        if(status == 'patient'):
             myquery = {"NUMBER": num}
             newvalues = {"$set": {"symptoms": msg_text, "status": "pat_loc"}}
-            doctor.update_many(myquery, newvalues)
+            patient.update_many(myquery, newvalues)
             msg = MessagingResponse()
             msg.message(
                 'If you want to get doctors near your location please share your location and if not please send No.')
@@ -99,7 +68,7 @@ def reply():
                         "Latitude": lat,
                         "Longitude": lon,
                         "status": "send_doc"}}
-                doctor.update_many(myquery, newvalues)
+                patient.update_many(myquery, newvalues)
                 msg = MessagingResponse()
                 msg.message('Doctor Info')
                 return(str(msg))
@@ -121,13 +90,46 @@ def reply():
                                   "Longitude": lon, "status": "done"}}
             doctor.update_many(myquery, newvalues)
             msg = MessagingResponse()
-            msg.message('Doctor Added!!')
+            msg.message('Doctor Added successfully!!')
             return(str(msg))
 
         elif(status1 == 'done'):
             msg = MessagingResponse()
-            msg.message('You have already in our database as a Doctor.')
+            msg.message(
+                'You have already been added in our database as a Doctor.')
             return(str(msg))
+
+        # If user is new
+        elif(status == "new"):
+            if(msg_text[-1] == '1'):
+                doctor.delete_one({"NUMBER": num})
+                myquery = {"NUMBER": num}
+                newvalues = {"$set": {"status": "patient"}}
+                patient.update_one(myquery, newvalues)
+                msg = MessagingResponse()
+                msg.message('''
+                Please select the symptoms from our list-:
+
+                1.) food allergies, insect sting allergies.
+                2.) heart failure, heart attack, high blood pressure, or irregular heartbeat.
+                3.) for asking or detailing moles, scars, acne, or skin allergies about specific medicines.
+                4.) moles, scars, acne, or skin allergies.
+                5.) diabetes, thyroid problems, calcium and bone disorders.
+                7.) Emergency Case(medicine specialist).
+                8.) Fever, cold & cuff, Headache, Clogged Nose, and Body Pain.
+
+                💡 Tip: Select the option number from the list.(Ex.1)''')
+                return(str(msg))
+
+            elif(msg_text[-1] == '2'):
+                patient.delete_one({"NUMBER": num})
+                myquery = {"NUMBER": num}
+                newvalues = {
+                    "$set": {"name": msg_text[:-2], "status": "doctor"}}
+                doctor.update_many(myquery, newvalues)
+                msg = MessagingResponse()
+                msg.message('Please tell us your Specializations.')
+                return(str(msg))
 
 
 if (__name__ == "__main__"):
