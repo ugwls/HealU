@@ -14,6 +14,11 @@ doctor = db["doctor"]
 app = Flask(__name__)
 
 
+@app.route("/")
+def index():
+    return "Server is Up!"
+
+
 @app.route("/sms", methods=["get", "post"])
 def reply():
     num = request.form.get("From")
@@ -35,12 +40,9 @@ def reply():
         Welcome to HealU
         This HelpDesk is to create awareness and help
         you and your family stay safe.
-
         Please choose from the following options 👇
-
         1. Patient (Ex: Ujjwal Sharma 1)
         2. Doctor  (Ex: Ujjwal Sharma 2)
-
         💡 Tip: Your name and option number sperated
         by space that is 'Ujjwal Sharma 1'.''')
         return(str(msg))
@@ -109,7 +111,6 @@ def reply():
                 msg = MessagingResponse()
                 msg.message('''
                 Please select the symptoms from our list-:
-
                 1.) food allergies, insect sting allergies.
                 2.) heart failure, heart attack, high blood pressure, or irregular heartbeat.
                 3.) for asking or detailing moles, scars, acne, or skin allergies about specific medicines.
@@ -117,7 +118,6 @@ def reply():
                 5.) diabetes, thyroid problems, calcium and bone disorders.
                 7.) Emergency Case(medicine specialist).
                 8.) Fever, cold & cuff, Headache, Clogged Nose, and Body Pain.
-
                 💡 Tip: Select the option number from the list.(Ex.1)''')
                 return(str(msg))
 
